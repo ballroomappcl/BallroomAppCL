@@ -122,7 +122,7 @@ const REG_MOD_LABEL={pareja:'Pareja',solista:'Solista',synchro:'Synchro Duo',tea
 const FEAT_JACKJILL=false;
 if(!FEAT_JACKJILL){
   const _jjHide=document.createElement('style');
-  _jjHide.textContent='[data-tipo="jackjill"],#reg-sec-jackjill{display:none!important}';
+  _jjHide.textContent='[data-tipo="jackjill"],#reg-sec-jackjill,[data-tab="jj"],#tab-jj{display:none!important}';
   (document.head||document.documentElement).appendChild(_jjHide);
 }
 const REG_MOD_PRIVADA_OPTS=['pareja','solista','synchro','team','singles','challenge','sociales','parejawest','jackjill'].filter(t=>FEAT_JACKJILL||t!=='jackjill');
@@ -1881,7 +1881,7 @@ async function loadPublished(){
   const siteUrlEl=document.getElementById('siteUrl');
   if(siteUrlEl&&localStorage.getItem('site_url'))siteUrlEl.value=localStorage.getItem('site_url');
 })();
-let TABS=[{id:'dorsales',label:'Dorsales'},{id:'cron',label:'Cronograma'},{id:'tandas',label:'Singles Dances'},{id:'comp',label:'Competencias'},{id:'inscripciones',label:'Inscripciones'},{id:'pagos',label:'💰 Pagos'},{id:'orden',label:'Orden General'},{id:'cp',label:'Planillas CP'},{id:'jreport',label:'🏆 Resultados Singles'},{id:'mdreport',label:'🏅 Resultados Multidance'},{id:'jj',label:'🃏 Jack & Jill'},{id:'config',label:'⚙ Configuración'}];
+let TABS=[{id:'dorsales',label:'Dorsales'},{id:'cron',label:'Cronograma'},{id:'tandas',label:'Singles Dances'},{id:'comp',label:'Competencias'},{id:'inscripciones',label:'Inscripciones'},{id:'pagos',label:'💰 Pagos'},{id:'orden',label:'Orden General'},{id:'cp',label:'Planillas CP'},{id:'jreport',label:'🏆 Resultados Singles'},{id:'mdreport',label:'🏅 Resultados Multidance'},{id:'config',label:'⚙ Configuración'}];
 // Grilla "¿Qué ve y qué puede hacer cada Usuario/PIN?" en Configuración › Permisos. Las columnas
 // Vista pública y Escrutinador son TILDES editables (ver saveTabPerm) que controlan VIEW_TABS/
 // SCRUT_TABS — las mismas listas que ya filtran las solapas reales, así que tildar/destildar acá
