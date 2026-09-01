@@ -3,8 +3,8 @@
 // como repositorio + hosting estático de este index.html — ya no se usan para guardar/sincronizar datos.
 // La anon key es pública por diseño (Supabase la espera embebida en clientes); el control de acceso
 // real de esta app sigue siendo el PIN (admin/locutor/viewer/juez), igual que antes con el token de GitHub.
-const SUPABASE_URL='https://wpzvtmbfhjkrbnpxchyc.supabase.co';
-const SUPABASE_ANON_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndwenZ0bWJmaGprcmJucHhjaHljIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODIxNTI1MzMsImV4cCI6MjA5NzcyODUzM30.sgG5VRqeNC9_spPW1nYOetKPmceCAGJNYAsp6sM2yPY';
+const SUPABASE_URL='https://qbgctxfatrdmxakacnpp.supabase.co';
+const SUPABASE_ANON_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFiZ2N0eGZhdHJkbXhha2FjbnBwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODgyOTkzMDAsImV4cCI6MjEwMzg3NTMwMH0.5IX_L4qXG6bHY4NC6N3yLKWpFIkrMkK7HJlSzWSD8dI';
 // Forzamos cache:'no-store' en cada request de Supabase. Sin esto, algunos navegadores/dispositivos
 // pueden servir una respuesta GET cacheada localmente (datos viejos) en vez de pedirla de nuevo al
 // servidor, incluso con la misma URL/PIN. Esto causaba que un dispositivo viera datos desactualizados
