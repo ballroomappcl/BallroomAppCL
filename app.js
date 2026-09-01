@@ -118,7 +118,14 @@ const EDADES_REG_AABD=['Juvenile','Youth','Adult','Senior'];
 // toggle transversal que oculta/muestra la opción "Sociales" dentro de Pareja y Singles Dances.
 // AABD no ofrece Challenge ni Sociales (estructural, no configurable: ver regStripSocialAabd).
 const REG_MOD_LABEL={pareja:'Pareja',solista:'Solista',synchro:'Synchro Duo',team:'Equipo coreográfico',singles:'Singles Dances',challenge:'Challenge',sociales:'Sociales',parejawest:'Pareja WEST',jackjill:'Jack & Jill'};
-const REG_MOD_PRIVADA_OPTS=['pareja','solista','synchro','team','singles','challenge','sociales','parejawest','jackjill'];
+// Jack & Jill oculto en este proyecto. Poner en true para reactivarlo por completo.
+const FEAT_JACKJILL=false;
+if(!FEAT_JACKJILL){
+  const _jjHide=document.createElement('style');
+  _jjHide.textContent='[data-tipo="jackjill"],#reg-sec-jackjill{display:none!important}';
+  (document.head||document.documentElement).appendChild(_jjHide);
+}
+const REG_MOD_PRIVADA_OPTS=['pareja','solista','synchro','team','singles','challenge','sociales','parejawest','jackjill'].filter(t=>FEAT_JACKJILL||t!=='jackjill');
 const REG_MOD_AABD_OPTS=['pareja','solista','synchro','team','singles'];
 // Listas efectivas que usa el formulario público: se sobreescriben en renderInscripcionPublica()
 // con lo que haya guardado el admin en reg-config.json; si no hay nada configurado, quedan estos
@@ -1968,7 +1975,7 @@ function render(){
     // Overrides por bloque para modo individual
     const singleBlockOverrides=Array.from({length:BLOCK_COUNT},(_x,bi)=>blkTimeGet(String(bi+1),'b'+(bi+1)));
     SCH=buildSchedule(MODEL,maxX,merge,timing,shareMode,heatOffset,singleBlockOverrides);
-    jjAppendScheduleEntries(SCH); // J&J siempre se agrega, sea cual sea el modo
+    if(FEAT_JACKJILL)jjAppendScheduleEntries(SCH); // J&J siempre se agrega, sea cual sea el modo
     activeModel=MODEL;
   }
   // Actualizar inputs de horario por bloque si existen
@@ -10308,7 +10315,7 @@ async function loadJJRoundsFromDB(){
 
 async function loadJJInscFromDB(){
   try{
-    const {data}=await sb.from('inscripciones').select('id,created_at,resumen,rows').eq('tipo','jackjill').order('created_at',{ascending:true});
+    const {data}=FEAT_JACKJILL?(await sb.from('inscripciones').select('id,created_at,resumen,rows').eq('tipo','jackjill').order('created_at',{ascending:true})):{data:[]};
     _JJ_INSC=data||[];
   }catch(e){_JJ_INSC=[];}
 }
@@ -10509,7 +10516,7 @@ async function _paneJJLoad(){
   d.innerHTML='<div style="padding:24px;text-align:center;color:var(--ink-soft)">⏳ Cargando...</div>';
   await loadJJRoundsFromDB();
   try{
-    const {data}=await sb.from('inscripciones').select('id,created_at,resumen,rows').eq('tipo','jackjill').order('created_at',{ascending:true});
+    const {data}=FEAT_JACKJILL?(await sb.from('inscripciones').select('id,created_at,resumen,rows').eq('tipo','jackjill').order('created_at',{ascending:true})):{data:[]};
     _JJ_INSC=data||[];
   }catch(e){_JJ_INSC=[];}
   d=document.querySelector('.pane[data-p="jj"]');
