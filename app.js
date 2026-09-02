@@ -9396,7 +9396,7 @@ function regField(label,html){return `<div><label style="display:block;font-size
 // El select "...{prefix}_edad" (Privada) conserva el id histórico para no romper nada que ya lo lea.
 function regAgeFieldHTML(prefix){
   return `<div id="reg_${prefix}_edad_priv_wrap">${regField('Grupo de edad (Privada)',`<select id="reg_${prefix}_edad" style="${REG_INP}">${REG_EDADES_PRIVADA.map(a=>`<option value="${a}">${ageRegLabel(a)}</option>`).join('')}</select>`)}</div>
-  <div id="reg_${prefix}_edad_aabd_wrap" style="display:none">${regField('Grupo de edad (AABD)',`<select id="reg_${prefix}_edadAabd" style="${REG_INP}">${REG_EDADES_AABD.map(a=>`<option value="${a}">${a}</option>`).join('')}</select>`)}</div>`;
+  <div id="reg_${prefix}_edad_aabd_wrap" style="display:none">${regField('Grupo de edad (Federación)',`<select id="reg_${prefix}_edadAabd" style="${REG_INP}">${REG_EDADES_AABD.map(a=>`<option value="${a}">${a}</option>`).join('')}</select>`)}</div>`;
 }
 // Contested/Uncontested: el bailarín lo elige al inscribirse, aplica solo a sus Single Dances
 // (si los tiene). El juez puntúa 1-20 en ambos casos — es solo una categorización informativa.
@@ -9707,13 +9707,13 @@ function regCompSelectorHTML(){
       <div style="font-size:12px;font-weight:700;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px">¿A qué competencia te inscribís?</div>
       <div style="display:flex;gap:18px;flex-wrap:wrap">
         <label style="display:flex;align-items:center;gap:6px;font-size:13.5px;font-weight:600"><input type="checkbox" id="reg_comp_privada" checked onchange="regUpdateCompVisibility()"> Privada</label>
-        <label style="display:flex;align-items:center;gap:6px;font-size:13.5px;font-weight:600"><input type="checkbox" id="reg_comp_aabd" onchange="regUpdateCompVisibility()"> AABD (federación)</label>
+        <label style="display:flex;align-items:center;gap:6px;font-size:13.5px;font-weight:600"><input type="checkbox" id="reg_comp_aabd" onchange="regUpdateCompVisibility()"> Federación</label>
       </div>
-      <p style="font-size:12px;color:var(--ink-soft);margin:8px 0 0">Podés elegir una o ambas. AABD no incluye estilos Sociales ni Challenge, y usa sus propios grupos de edad (Juvenile / Youth / Adult / Senior).</p>
+      <p style="font-size:12px;color:var(--ink-soft);margin:8px 0 0">Podés elegir una o ambas. La Federación no incluye estilos Sociales ni Challenge, y usa sus propios grupos de edad (Juvenile / Youth / Adult / Senior).</p>
     </div>`;
   }
   const onlyAabd=REG_COMP_AABD_ENABLED&&!REG_COMP_PRIVADA_ENABLED;
-  const label=onlyAabd?'AABD (federación)':'Privada';
+  const label=onlyAabd?'Federación':'Privada';
   return `<input type="checkbox" id="reg_comp_privada" ${onlyAabd?'':'checked'} style="display:none">
     <input type="checkbox" id="reg_comp_aabd" ${onlyAabd?'checked':''} style="display:none">
     <div style="background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px 20px;margin-bottom:16px;font-size:13px;color:var(--ink-soft)">Inscripción habilitada para: <strong style="color:var(--ink)">${label}</strong></div>`;
@@ -9882,12 +9882,12 @@ async function regSubmitPareja(){
   if(!lead){regSetStatus('⚠ Ingresá el nombre del leader.',true);return;}
   {const ld=v('reg_p_leadDni'),fd=v('reg_p_follDni');if(ld&&fd&&ld===fd){regSetStatus('⚠ El DNI del Leader y del Follower no pueden ser iguales.',true);return;}}
   const {aabd,privada}=regCompTags();
-  if(!aabd&&!privada){regSetStatus('⚠ Elegí al menos una competencia (AABD y/o Privada).',true);return;}
+  if(!aabd&&!privada){regSetStatus('⚠ Elegí al menos una competencia (Federación y/o Privada).',true);return;}
   const mod=document.querySelector('input[name="reg_p_mod"]:checked').value;
   const american=mod==='american',sociales=mod==='sociales';
   const chalRitmos=chk('reg_p_chal_chk')?regReadChallengeChecklist('reg_p_chal'):{};
   if(chk('reg_p_chal_chk')&&!Object.keys(chalRitmos).length){regSetStatus('⚠ Elegí al menos un ritmo para el Challenge.',true);return;}
-  if(Object.keys(chalRitmos).length&&!privada){regSetStatus('⚠ Challenge no existe en AABD. Tildá "Privada" arriba para inscribirte también a Challenge.',true);return;}
+  if(Object.keys(chalRitmos).length&&!privada){regSetStatus('⚠ Challenge no existe en la Federación. Tildá "Privada" arriba para inscribirte también a Challenge.',true);return;}
   const baseD={
     lead,leadDni:v('reg_p_leadDni'),foll,follDni:v('reg_p_follDni'),esc:v('reg_p_esc'),
     modalidad:mod,
@@ -9921,7 +9921,7 @@ function regSubmitSolista(){
   const nombre=v('reg_s_nombre'),dni=v('reg_s_dni');
   if(!nombre){regSetStatus('⚠ Ingresá el nombre del solista.',true);return;}
   const {aabd,privada}=regCompTags();
-  if(!aabd&&!privada){regSetStatus('⚠ Elegí al menos una competencia (AABD y/o Privada).',true);return;}
+  if(!aabd&&!privada){regSetStatus('⚠ Elegí al menos una competencia (Federación y/o Privada).',true);return;}
   const esc=v('reg_s_esc');
   const bloques=[],blockSingles={};
   ['s1','s2'].forEach(px=>{
@@ -9938,7 +9938,7 @@ function regSubmitSolista(){
   const chalChk=document.getElementById('reg_s_chal_chk').checked;
   const chalRitmos=chalChk?regReadChallengeChecklist('reg_s_chal'):{};
   if(chalChk&&!Object.keys(chalRitmos).length){regSetStatus('⚠ Elegí al menos un ritmo para el Challenge.',true);return;}
-  if(Object.keys(chalRitmos).length&&!privada){regSetStatus('⚠ Challenge no existe en AABD. Tildá "Privada" arriba para inscribirte también a Challenge.',true);return;}
+  if(Object.keys(chalRitmos).length&&!privada){regSetStatus('⚠ Challenge no existe en la Federación. Tildá "Privada" arriba para inscribirte también a Challenge.',true);return;}
   const baseD={nombre,dni,esc,bloques,singles:blockSingles,chalRitmos,contested:regContestedVal('s')};
   const edadPriv=document.getElementById('reg_s_edad').value,edadAabd=document.getElementById('reg_s_edadAabd').value;
   const rows=regBuildRowsForComps(solistaToRows,baseD,edadPriv,edadAabd);
@@ -9952,7 +9952,7 @@ async function regSubmitSynchro(){
   if(!a1){regSetStatus('⚠ Ingresá el nombre del Atleta 1.',true);return;}
   if(a1Dni&&a2Dni&&a1Dni===a2Dni){regSetStatus('⚠ El DNI del Atleta 1 y del Atleta 2 no pueden ser iguales.',true);return;}
   const {aabd,privada}=regCompTags();
-  if(!aabd&&!privada){regSetStatus('⚠ Elegí al menos una competencia (AABD y/o Privada).',true);return;}
+  if(!aabd&&!privada){regSetStatus('⚠ Elegí al menos una competencia (Federación y/o Privada).',true);return;}
   const esc=v('reg_y_esc');
   const bloques=[];
   const rhCat=document.getElementById('reg_y_rhNiv').value,rhOpen=document.getElementById('reg_y_rhOpen').checked;
@@ -9977,7 +9977,7 @@ async function regSubmitSynchro(){
 function regSubmitTeam(){
   const v=id=>document.getElementById(id).value.trim();
   const {aabd,privada}=regCompTags();
-  if(!aabd&&!privada){regSetStatus('⚠ Elegí al menos una competencia (AABD y/o Privada).',true);return;}
+  if(!aabd&&!privada){regSetStatus('⚠ Elegí al menos una competencia (Federación y/o Privada).',true);return;}
   const esc=v('reg_t_esc');
   const entries=[];
   if(document.getElementById('reg_t_sd_chk').checked){
@@ -10075,7 +10075,7 @@ function regSubmitSingles(){
   const lead=v('reg_si_lead'),leadDni=v('reg_si_leadDni');
   if(!lead){regSetStatus('⚠ Ingresá el nombre.',true);return;}
   const {aabd,privada}=regCompTags();
-  if(!aabd&&!privada){regSetStatus('⚠ Elegí al menos una competencia (AABD y/o Privada).',true);return;}
+  if(!aabd&&!privada){regSetStatus('⚠ Elegí al menos una competencia (Federación y/o Privada).',true);return;}
   const foll=pareja?v('reg_si_foll'):'',follDni=pareja?v('reg_si_follDni'):'';
   const esc=v('reg_si_esc');
   const singles=regReadChecklist(['INT-ST','INT-LT','AM-SM','AM-RH','SOC-LA','SOC-AR','SOC-AM'],'si');
@@ -10220,7 +10220,7 @@ function regSubmitChallenge(){
   // Challenge no existe en AABD: siempre se tagea como Privada (no hay checkbox que elegir aquí;
   // la pestaña entera se oculta cuando "Privada" no está tildada, ver regUpdateCompVisibility()).
   const {privada}=regCompTags();
-  if(!privada){regSetStatus('⚠ Challenge no existe en AABD. Tildá "Privada" arriba para inscribirte.',true);return;}
+  if(!privada){regSetStatus('⚠ Challenge no existe en la Federación. Tildá "Privada" arriba para inscribirte.',true);return;}
   const v=id=>document.getElementById(id).value.trim();
   const pareja=document.querySelector('input[name="reg_ch_tipo"][value="pareja"]').checked;
   const lead=v('reg_ch_lead'),leadDni=v('reg_ch_leadDni');
@@ -12454,7 +12454,7 @@ async function renderInscripcionPublica(){
   `;
   const challengeHTML=`
     <div style="font-family:'Fraunces',serif;font-weight:700;font-size:18px;color:var(--wine);margin-bottom:10px">Challenge</div>
-    <p style="font-size:12.5px;color:var(--ink-soft);margin:0 0 12px">Competencia de un solo ritmo, todos contra todos. Sólo existe en la competencia Privada (no forma parte de AABD).</p>
+    <p style="font-size:12.5px;color:var(--ink-soft);margin:0 0 12px">Competencia de un solo ritmo, todos contra todos. Sólo existe en la competencia Privada (no forma parte de la Federación).</p>
     ${regField('Escuela',`<input id="reg_ch_esc" style="${REG_INP}">`)}
     ${regField('Tipo de inscripción',`<div style="display:flex;gap:14px;margin-bottom:12px">
       <label style="display:flex;align-items:center;gap:6px;font-size:13.5px"><input type="radio" name="reg_ch_tipo" value="solo" checked onchange="regChallengeTipoChange()"> Solo</label>
@@ -14165,7 +14165,7 @@ async function importInscripcionesOnline(forcedTitle,_silent=false){
     }
     if(aabdRows.length){
       const idx=COMPS.findIndex(c=>c.sheet==='__inscripciones_web_aabd__');
-      sessions.push({sheet:'__inscripciones_web_aabd__',rows:aabdRows,ageMode:'AABD',ageFn:ageNormAABD,idx,defaultTitle:'AABD'});
+      sessions.push({sheet:'__inscripciones_web_aabd__',rows:aabdRows,ageMode:'AABD',ageFn:ageNormAABD,idx,defaultTitle:'Federación'});
     }
     sessions.forEach(s=>{
       const model=buildModel(s.rows,s.ageFn);
@@ -14196,7 +14196,7 @@ async function importInscripcionesOnline(forcedTitle,_silent=false){
     buildCompSel();syncCompInputs();updateCompHeader();renderLogoPanel();render();
     scheduleAdminBackup(); // guardar backup para que el refresh restaure las inscripciones importadas
     loadJudgeReportData(true); // forzar recálculo inmediato del reporte de jueces
-    const sessLabel=sessions.map(s=>s.sheet==='__inscripciones_web_aabd__'?'AABD':'Privada').join(' + ');
+    const sessLabel=sessions.map(s=>s.sheet==='__inscripciones_web_aabd__'?'Federación':'Privada').join(' + ');
     setMsg('#eef6f0','#b8d4bb','#3f6b4a','✓ Importadas '+data.length+' inscripciones online ('+allRows.length+' filas) como sesión'+(sessions.length>1?'es':'')+' "'+sessLabel+'".');
     // Guardamos el momento de este import (en Supabase, no localStorage, para que cuente sin
     // importar desde qué dispositivo se haga el próximo import) — es lo que usa
@@ -14533,7 +14533,7 @@ function openManualCoupleForm(){
     <div style="${FLD}"><label style="${LBL}">Escuela</label><input id="mcEsc" type="text" placeholder="Nombre de la escuela" style="${INP}"></div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;${FLD}">
       <div><label style="${LBL}">Grupo de edad *</label><select id="mcEdad" style="${INP}">${EDADES_REG.map(e=>`<option value="${e}">${e}</option>`).join('')}</select></div>
-      <div><label style="${LBL}">Competencia</label><select id="mcComp" style="${INP}">${(()=>{const _cv=[...new Set(COMPS.flatMap(c=>(c.rows||[]).map(r=>r['Competencia']).filter(Boolean)))];const _opts=_cv.length?_cv:['Privada','AABD'];return _opts.map(v=>`<option value="${v}">${v}</option>`).join('');})()}</select></div>
+      <div><label style="${LBL}">Competencia</label><select id="mcComp" style="${INP}">${(()=>{const _cv=[...new Set(COMPS.flatMap(c=>(c.rows||[]).map(r=>r['Competencia']).filter(Boolean)))];const _opts=_cv.length?_cv:['Privada','AABD'];return _opts.map(v=>`<option value="${v}">${v==='AABD'?'Federación':v}</option>`).join('');})()}</select></div>
     </div>
     <div style="${FLD}">
       <label style="${LBL}">Especialidad</label>

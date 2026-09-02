@@ -482,12 +482,12 @@
           </div>
           <button class="act" id="regAgeModConfigToggle" onclick="(function(){var p=document.getElementById('regAgeModConfigPanel');var op=p.style.display==='flex';p.style.display=op?'none':'flex';if(!op)loadRegAgeModConfig();})()" style="font-size:12px">🎟 Edades y modalidades habilitadas</button>
           <div id="regAgeModConfigPanel" style="display:none;margin-top:8px;flex-direction:column;gap:10px">
-            <div style="font-size:11px;color:var(--ink-soft);line-height:1.4">Configurá, por separado para Privada y AABD, qué grupos de edad y qué modalidades se ofrecen en el formulario. Dejá el campo de edades vacío para usar los valores por defecto.</div>
+            <div style="font-size:11px;color:var(--ink-soft);line-height:1.4">Configurá, por separado para Privada y Federación, qué grupos de edad y qué modalidades se ofrecen en el formulario. Dejá el campo de edades vacío para usar los valores por defecto.</div>
             <div style="font-size:12px;font-weight:700;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.05em;border-top:1px solid var(--line);padding-top:8px">Competencias habilitadas</div>
             <div style="font-size:11px;color:var(--ink-soft);line-height:1.4">Si destildás una, deja de ofrecerse como opción en el formulario público (el campo "¿A qué competencia te inscribís?" desaparece y queda fija en la que sigue habilitada). Si destildás las dos por error, se vuelven a habilitar las dos automáticamente.</div>
             <div style="display:flex;flex-wrap:wrap;gap:10px;font-size:12.5px">
               <label style="display:flex;align-items:center;gap:6px;cursor:pointer"><input type="checkbox" id="ramcCompPrivada" checked style="width:14px;height:14px;cursor:pointer"> Privada</label>
-              <label style="display:flex;align-items:center;gap:6px;cursor:pointer"><input type="checkbox" id="ramcCompAabd" checked style="width:14px;height:14px;cursor:pointer"> AABD (federación)</label>
+              <label style="display:flex;align-items:center;gap:6px;cursor:pointer"><input type="checkbox" id="ramcCompAabd" checked style="width:14px;height:14px;cursor:pointer"> Federación</label>
             </div>
             <div style="font-size:12px;font-weight:700;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.05em;border-top:1px solid var(--line);padding-top:8px">Privada</div>
             <div class="ctl edit-only" style="display:flex;flex-direction:column;gap:4px"><label for="regEdadesPrivada">Grupos de edad (separados por coma)</label><input type="text" id="regEdadesPrivada" placeholder="Jun, Adu, Senior 1, Senior 2, Senior 3, Senior 4" style="width:100%;box-sizing:border-box;padding:7px 10px;border:1px solid var(--line);border-radius:8px;font-size:12px;background:var(--bg);color:var(--ink)"></div>
@@ -504,13 +504,13 @@
             <div id="regNivelSoclaListPriv" style="display:flex;flex-wrap:wrap;gap:10px;font-size:12.5px"></div>
             <div style="font-size:11px;color:var(--ink-soft)">Social Argentino:</div>
             <div id="regNivelSocarListPriv" style="display:flex;flex-wrap:wrap;gap:10px;font-size:12.5px"></div>
-            <div style="font-size:11px;color:var(--ink-soft);line-height:1.4">Sociales sólo existe en Privada (AABD no lo ofrece), por eso no tiene su propia sección en AABD más abajo.</div>
+            <div style="font-size:11px;color:var(--ink-soft);line-height:1.4">Sociales sólo existe en Privada (la Federación no lo ofrece), por eso no tiene su propia sección en Federación más abajo.</div>
             <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:12.5px"><input type="checkbox" id="ranl_priv_open" checked style="width:14px;height:14px;cursor:pointer"> Ofrecer "Open" como nivel en Singles Dances</label>
-            <div style="font-size:12px;font-weight:700;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.05em;border-top:1px solid var(--line);padding-top:8px">AABD</div>
+            <div style="font-size:12px;font-weight:700;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.05em;border-top:1px solid var(--line);padding-top:8px">Federación</div>
             <div class="ctl edit-only" style="display:flex;flex-direction:column;gap:4px"><label for="regEdadesAabd">Grupos de edad (separados por coma)</label><input type="text" id="regEdadesAabd" placeholder="Juvenile, Youth, Adult, Senior" style="width:100%;box-sizing:border-box;padding:7px 10px;border:1px solid var(--line);border-radius:8px;font-size:12px;background:var(--bg);color:var(--ink)"></div>
-            <div style="font-size:11px;color:var(--ink-soft)">Modalidades habilitadas (AABD no ofrece Challenge ni Sociales):</div>
+            <div style="font-size:11px;color:var(--ink-soft)">Modalidades habilitadas (la Federación no ofrece Challenge ni Sociales):</div>
             <div id="regModAabdList" style="display:flex;flex-wrap:wrap;gap:10px;font-size:12.5px"></div>
-            <div style="font-size:11px;color:var(--ink-soft);line-height:1.4;margin-top:4px">Categorías (niveles) habilitadas. Es independiente de la de Privada: por ejemplo, podés dejar todos los niveles habilitados en Privada y sólo algunos en AABD.</div>
+            <div style="font-size:11px;color:var(--ink-soft);line-height:1.4;margin-top:4px">Categorías (niveles) habilitadas. Es independiente de la de Privada: por ejemplo, podés dejar todos los niveles habilitados en Privada y sólo algunos en la Federación.</div>
             <div style="font-size:11px;color:var(--ink-soft)">International (Standard / Latin):</div>
             <div id="regNivelIntListAabd" style="display:flex;flex-wrap:wrap;gap:10px;font-size:12.5px"></div>
             <div style="font-size:11px;color:var(--ink-soft)">American (Smooth / Rhythm):</div>
