@@ -341,7 +341,7 @@ function adaptRows(rows){
   const edads=allIdx('edad');
   const ageBefore=col=>{let b=-1;edads.forEach(i=>{if(i<col&&i>b)b=i;});return b;};
   const ageAfter=col=>{let b=1e9;edads.forEach(i=>{if(i>col&&i<b)b=i;});return b===1e9?-1:b;};
-  const mk=()=>{const o={'Nombre (leader)':null,'DNI del leader':null,'Follower (indicar nombre)':null,'DNI del follower':null,'Elegir modalidad':null,'Standard categoria':null,'Latin categoria':null,'Smooth categoria':null,'Rhythm categoria':null,'SocialLatino categoria':null,'SocialArgentino categoria':null,'SocialAmericano categoria':null,'Elija la especialidad':null,'Grupo de edad':null,'Seleccione su escuela':null,'Equipo coreográfico integrantes':null,'Nombre del equipo coreográfico':null,'Tipo de equipo':null};
+  const mk=()=>{const o={'Nombre (leader)':null,'DNI del leader':null,'Follower (indicar nombre)':null,'DNI del follower':null,'Elegir modalidad':null,'Standard categoria':null,'Latin categoria':null,'Smooth categoria':null,'Rhythm categoria':null,'SocialLatino categoria':null,'SocialArgentino categoria':null,'SocialAmericano categoria':null,'Elija la especialidad':null,'Grupo de edad':null,'Seleccione su escuela':null,'Equipo coreográfico integrantes':null,'Cantidad de integrantes':null,'Nombre del equipo coreográfico':null,'Tipo de equipo':null};
     ['INT-ST','INT-LT','AM-SM','AM-RH','SOC-LA','SOC-AR','SOC-AM'].forEach(g=>DANCESETS[GROUP2STYLE[g]].forEach(d=>o['Ritmos ('+g+') ['+d+']']=null));return o;};
   const parseLevel=v=>{const o={cat:null,open:false};if(v==null)return o;const s=String(v);o.open=/open/i.test(s);if(/no bail/i.test(s))return o;s.split(/[,\/]+|\s+/).forEach(t=>{const u=t.trim().toUpperCase();if(o.cat)return;if(['NC','HB','FB','SL','GD'].includes(u)||['A','B','C','D','E','F'].includes(u))o.cat=u;else if(u==='GOLD')o.cat='GD';else if(u==='SILVER')o.cat='SL';else if(u==='NEWCOMER')o.cat='NC';});return o;};
   const mkEsp=(pfx,cat,open)=>[pfx,cat?'Letra / Medalla':'',open?'Open':''].filter(Boolean).join(' ');
@@ -3769,7 +3769,7 @@ async function updatePago(id,patch){
   render();
 }
 function pagoTotalOf(rec){
-  if(rec.tipo==='team')return null;
+  if(rec.tipo==='team')return (rec.rows||[]).reduce((a,row)=>a+regTeamPrice(regTeamCountOf(row)),0);
   if(rec.tipo==='jackjill'){
     return(rec.rows||[]).reduce((a,row)=>{
       const rol=(row['Rol']||'Leader');
@@ -3807,7 +3807,10 @@ function panePagos(q){
   }
   const TIPO_LABEL={pareja:'Pareja',solista:'Solista',synchro:'Synchro Duo',team:'Equipo',singles:'Singles Dances',challenge:'Challenge',jackjill:'Jack & Jill'};
   const recs=_PAGOS_CACHE.map(r=>{
-    if(r.tipo==='team')return Object.assign({},r,{m:0,s:0,c:0,items:[],total:null});
+    if(r.tipo==='team'){
+      const items=(r.rows||[]).map(regTeamItemOf);
+      return Object.assign({},r,{m:0,s:0,c:0,items,total:items.reduce((a,it)=>a+it.price,0)});
+    }
     if(r.tipo==='jackjill'){
       // precio por rol
       const rows=r.rows||[];
@@ -3875,8 +3878,8 @@ function panePagos(q){
     const emailContacto=(r.rows&&r.rows[0]&&r.rows[0]['Email de contacto'])||'';
     const escuelaContacto=(r.rows&&r.rows[0]&&r.rows[0]['Seleccione su escuela'])||'';
     const detalleHTML=regRowsSummaryHTML(r.rows);
-    const desgloseHTML=r.tipo==='team'?'<span style="color:var(--ink-soft)">— (no incluido en este cálculo)</span>':(r.items.length?r.items.map(it=>`<div>${it.label} — ${regPriceFmt(it.price)}</div>`).join(''):'<span style="color:var(--ink-soft)">—</span>');
-    const totalCell=r.tipo==='team'?'<span style="color:var(--ink-soft)">—</span>':regPriceFmt(r.total);
+    const desgloseHTML=(r.items.length?r.items.map(it=>`<div>${it.label} — ${regPriceFmt(it.price)}</div>`).join(''):'<span style="color:var(--ink-soft)">—</span>');
+    const totalCell=r.total==null?'<span style="color:var(--ink-soft)">—</span>':regPriceFmt(r.total);
     const estado=r.pago_estado||'pendiente';
     const monto=r.pago_monto||0;
     const showMontoInput=estado==='parcial'||r.total==null;
@@ -9211,7 +9214,7 @@ document.getElementById('resetSupabase').addEventListener('click',async()=>{
 // 'inscripciones' en vez de INSERT. Lo setea editInscripcionAdmin() y lo limpia closeRegEdit().
 let REG_EDIT_ID=null;
 function mkCanonRow(){
-  const row={'Nombre (leader)':null,'DNI del leader':null,'Follower (indicar nombre)':null,'DNI del follower':null,'Elegir modalidad':null,'Standard categoria':null,'Latin categoria':null,'Smooth categoria':null,'Rhythm categoria':null,'SocialLatino categoria':null,'SocialArgentino categoria':null,'SocialAmericano categoria':null,'Elija la especialidad':null,'Grupo de edad':null,'Seleccione su escuela':null,'Equipo coreográfico integrantes':null,'Nombre del equipo coreográfico':null,'Nombre de la coreografía':null,'Tipo de equipo':null,'Competencia':null,'Tipo de Pareja':null,'Email de contacto':null,'Teléfono de contacto':null};
+  const row={'Nombre (leader)':null,'DNI del leader':null,'Follower (indicar nombre)':null,'DNI del follower':null,'Elegir modalidad':null,'Standard categoria':null,'Latin categoria':null,'Smooth categoria':null,'Rhythm categoria':null,'SocialLatino categoria':null,'SocialArgentino categoria':null,'SocialAmericano categoria':null,'Elija la especialidad':null,'Grupo de edad':null,'Seleccione su escuela':null,'Equipo coreográfico integrantes':null,'Cantidad de integrantes':null,'Nombre del equipo coreográfico':null,'Nombre de la coreografía':null,'Tipo de equipo':null,'Competencia':null,'Tipo de Pareja':null,'Email de contacto':null,'Teléfono de contacto':null};
   ['INT-ST','INT-LT','AM-SM','AM-RH','SOC-LA','SOC-AR','SOC-AM'].forEach(g=>{DANCESETS[GROUP2STYLE[g]].forEach(dn=>{row['Ritmos ('+g+') ['+dn+']']=null;});});
   // "Ritmo Random" de Challenge: opción única (no por modalidad) — el ritmo concreto lo elige
   // el organizador el día de la competencia, no se resuelve por sistema.
@@ -9359,6 +9362,7 @@ function teamToRows(d){
     const row=mkCanonRow();
     row['Nombre del equipo coreográfico']=e.nombre||'Equipo';
     row['Equipo coreográfico integrantes']=e.integrantes||null;
+    row['Cantidad de integrantes']=(e.cant!=null&&e.cant>0)?e.cant:null;
     row['Nombre de la coreografía']=e.coreo||null;
     row['Seleccione su escuela']=d.esc||null;
     row['Elija la especialidad']='Equipo coreográfico';
@@ -9627,7 +9631,11 @@ function genRegPin(){return String(Math.floor(100000+Math.random()*900000));}
 function regSendConfirmationEmail(to,tipo,resumen,rows,pin){
   if(REG_CONFIRM_EMAIL_CFG&&REG_CONFIRM_EMAIL_CFG.enabled===false)return;
   let items=[],total=null;
-  if(tipo!=='team'){
+  if(tipo==='team'){
+    // Los equipos también llevan precio en el mail: una línea por equipo, con su escalón.
+    items=(rows||[]).map(regTeamItemOf);
+    total=items.reduce((a,it)=>a+it.price,0);
+  }else{
     const {m,s,c}=regCountsFromRows(rows);
     const pb=regPriceBreakdown(m,s,c,tipo==='solista');
     items=pb.items;total=pb.total;
@@ -9974,6 +9982,31 @@ async function regSubmitSynchro(){
   const resumen=`${a1}${a2?' & '+a2:''} — Synchro Duo`;
   submitInscripcionRows('synchro',rows,resumen,regClearSynchro);
 }
+// Cantidad cargada en el formulario para un bloque ('sd' | 'fm').
+function regTeamCantOf(px){
+  const el=document.getElementById('reg_t_'+px+'_cant');
+  const v=parseInt(el&&el.value,10);
+  return (isFinite(v)&&v>0)?v:1;
+}
+// Autocompleta la cantidad contando nombres, salvo que el usuario ya la haya tocado a mano
+// (dataset.touched): en ese caso manda lo que cargó él.
+function regTeamSyncCount(px){
+  const el=document.getElementById('reg_t_'+px+'_cant');
+  const ta=document.getElementById('reg_t_'+px+'_integrantes');
+  if(el&&ta&&el.dataset.touched!=='1')el.value=regTeamCountNames(ta.value);
+  regTeamUpdatePrice();
+}
+// Precio en vivo por bloque tildado.
+function regTeamUpdatePrice(){
+  [['sd','Showdance'],['fm','Formation']].forEach(([px,lbl])=>{
+    const box=document.getElementById('reg_t_'+px+'_price');
+    if(!box)return;
+    const chk=document.getElementById('reg_t_'+px+'_chk');
+    if(!chk||!chk.checked){box.textContent='';return;}
+    const n=regTeamCantOf(px);
+    box.textContent=lbl+' · '+regTeamTierLabel(n)+': '+regPriceFmt(regTeamPrice(n));
+  });
+}
 function regSubmitTeam(){
   const v=id=>document.getElementById(id).value.trim();
   const {aabd,privada}=regCompTags();
@@ -9982,13 +10015,20 @@ function regSubmitTeam(){
   const entries=[];
   if(document.getElementById('reg_t_sd_chk').checked){
     const integrantes=v('reg_t_sd_integrantes'),nombre=v('reg_t_sd_nombre'),coreo=v('reg_t_sd_coreo');
-    if(integrantes||nombre)entries.push({nombre,integrantes,coreo,tipo:'Showdance'});
+    if(integrantes||nombre)entries.push({nombre,integrantes,coreo,tipo:'Showdance',cant:regTeamCantOf('sd')});
   }
   if(document.getElementById('reg_t_fm_chk').checked){
     const integrantes=v('reg_t_fm_integrantes'),nombre=v('reg_t_fm_nombre'),coreo=v('reg_t_fm_coreo');
-    if(integrantes||nombre)entries.push({nombre,integrantes,coreo,tipo:'Formation'});
+    if(integrantes||nombre)entries.push({nombre,integrantes,coreo,tipo:'Formation',cant:regTeamCantOf('fm')});
   }
   if(!entries.length){regSetStatus('⚠ Completá Showdance y/o Formation con al menos integrantes o nombre.',true);return;}
+  // La cantidad define el precio, así que si no coincide con los nombres cargados hay que avisar
+  // antes de enviar: puede ser a propósito (nombres con coma, integrantes sin listar) o un error.
+  const desfasados=entries.filter(e=>e.integrantes&&regTeamCountNames(e.integrantes)!==e.cant);
+  if(desfasados.length){
+    const det=desfasados.map(e=>`${e.tipo}: ${regTeamCountNames(e.integrantes)} nombre(s) cargado(s) pero la cantidad dice ${e.cant}`).join('\n');
+    if(!confirm('La cantidad de integrantes no coincide con los nombres:\n\n'+det+'\n\nEl precio se calcula con la CANTIDAD. ¿Enviar igual?'))return;
+  }
   const d={esc,entries};
   const rows=teamToRows(d);
   // Los Equipos coreográficos están disponibles tanto en AABD como en Privada (sin restricción de
@@ -10045,6 +10085,11 @@ function regClearTeam(){
   ['reg_t_sd_nombre','reg_t_sd_coreo','reg_t_sd_integrantes','reg_t_fm_nombre','reg_t_fm_coreo','reg_t_fm_integrantes'].forEach(id=>document.getElementById(id).value='');
   document.getElementById('reg_t_sd_chk').checked=false;document.getElementById('reg_t_fm_chk').checked=false;
   document.getElementById('reg_t_sd_box').style.display='none';document.getElementById('reg_t_fm_box').style.display='none';
+  ['sd','fm'].forEach(px=>{
+    const el=document.getElementById('reg_t_'+px+'_cant');
+    if(el){el.value=1;delete el.dataset.touched;}
+  });
+  regTeamUpdatePrice();
 }
 function regSinglesTipoChange(){
   const pareja=document.querySelector('input[name="reg_si_tipo"][value="pareja"]').checked;
@@ -10933,6 +10978,53 @@ let REG_PRICE_S_TIERS=[
 let REG_PRICE_C_TIERS=[
   {c:2,price:40000,label:'2 Challenge (combo)'},
 ];
+// Escalones de Equipos coreográficos, por cantidad de integrantes. 'max' es el tope INCLUSIVO del
+// escalón y el último SIEMPRE lleva max:null (sin tope). Tanto los montos como los topes son
+// editables por el admin desde "Precios de inscripción"; las etiquetas se recalculan solas
+// (regTeamRefreshLabels) para que nunca contradigan a los topes guardados.
+let REG_PRICE_TEAM_TIERS=[
+  {max:2,   price:170000, label:'hasta 2 personas'},
+  {max:6,   price:240000, label:'hasta 6 personas'},
+  {max:null,price:350000, label:'7 personas o más'},
+];
+function regTeamRefreshLabels(){
+  REG_PRICE_TEAM_TIERS.forEach((t,i)=>{
+    const prev=i>0?(REG_PRICE_TEAM_TIERS[i-1].max||0):0;
+    const desde=prev+1;
+    if(t.max==null)t.label=desde+' persona'+(desde>1?'s':'')+' o más';
+    else if(t.max<=desde)t.label=t.max+' persona'+(t.max>1?'s':'');
+    else t.label=(prev===0?'hasta '+t.max+' personas':'de '+desde+' a '+t.max+' personas');
+  });
+}
+// Cuenta nombres separados por coma, punto y coma o salto de línea. Nunca devuelve menos de 1.
+// Es solo una ayuda para autocompletar: el número que vale es el que queda en el input de cantidad.
+function regTeamCountNames(txt){
+  const n=String(txt||'').split(/[,;\n]+/).map(x=>x.trim()).filter(Boolean).length;
+  return Math.max(1,n);
+}
+// Cantidad de integrantes de una fila YA GUARDADA. Usa 'Cantidad de integrantes' si está; si no
+// (inscripciones anteriores a esta función), cae al conteo de nombres.
+function regTeamCountOf(row){
+  row=row||{};
+  const n=parseInt(row['Cantidad de integrantes'],10);
+  if(isFinite(n)&&n>0)return n;
+  return regTeamCountNames(row['Equipo coreográfico integrantes']);
+}
+function regTeamTierOf(n){
+  const c=Math.max(1,parseInt(n,10)||1);
+  return REG_PRICE_TEAM_TIERS.find(t=>t.max==null||c<=t.max)||REG_PRICE_TEAM_TIERS[REG_PRICE_TEAM_TIERS.length-1];
+}
+function regTeamPrice(n){const t=regTeamTierOf(n);return t?t.price:0;}
+function regTeamTierLabel(n){const t=regTeamTierOf(n);return t?t.label:'';}
+// Etiqueta de un equipo en desgloses (Pagos y mail). Marca "estimado" cuando la cantidad se dedujo
+// de los nombres porque la inscripción es vieja y no trae el campo.
+function regTeamItemOf(row){
+  const n=regTeamCountOf(row);
+  const est=(row&&row['Cantidad de integrantes']!=null&&row['Cantidad de integrantes']!=='')?'':' · estimado';
+  const nombre=(row&&row['Nombre del equipo coreográfico'])||'Equipo';
+  const tipoEq=(row&&row['Tipo de equipo'])||'Equipo';
+  return {label:nombre+' · '+tipoEq+' ('+n+' integrante'+(n===1?'':'s')+est+')',price:regTeamPrice(n)};
+}
 // Snapshot congelado de los valores de arriba ANTES de que cualquier config guardada los pise —
 // permite el botón "Restaurar valores por defecto" en el panel admin sin tener que hardcodear los
 // números dos veces.
@@ -10940,7 +11032,8 @@ const REG_PRICE_DEFAULTS={
   baseM:REG_PRICE_BASE_M,baseS:REG_PRICE_BASE_S,baseC:REG_PRICE_BASE_C,baseMSolo:REG_PRICE_BASE_M_SOLO,baseWest:REG_PRICE_BASE_WEST,jjLeader:REG_PRICE_BASE_JJ_LEADER,jjFollower:REG_PRICE_BASE_JJ_FOLLOWER,
   mdTiers:REG_PRICE_MD_TIERS.map(t=>t.price),
   sTiers:REG_PRICE_S_TIERS.map(t=>t.price),
-  cTiers:REG_PRICE_C_TIERS.map(t=>t.price)
+  cTiers:REG_PRICE_C_TIERS.map(t=>t.price),
+  teamTiers:REG_PRICE_TEAM_TIERS.map(t=>({max:t.max,price:t.price}))
 };
 function regPriceFmt(n){return '$'+Math.round(n).toLocaleString('es-AR');}
 // Calcula el desglose determinístico (escalones fijos, no búsqueda de mínimo costo).
@@ -11006,6 +11099,21 @@ function applyRegPricesCfg(cfg){
   if(Array.isArray(cfg.mdTiers))cfg.mdTiers.forEach((p,i)=>{if(REG_PRICE_MD_TIERS[i]&&okNum(p))REG_PRICE_MD_TIERS[i].price=p;});
   if(Array.isArray(cfg.sTiers))cfg.sTiers.forEach((p,i)=>{if(REG_PRICE_S_TIERS[i]&&okNum(p))REG_PRICE_S_TIERS[i].price=p;});
   if(Array.isArray(cfg.cTiers))cfg.cTiers.forEach((p,i)=>{if(REG_PRICE_C_TIERS[i]&&okNum(p))REG_PRICE_C_TIERS[i].price=p;});
+  // Equipos: a diferencia del resto, acá también es configurable el TOPE de cada escalón. Se acepta
+  // tanto {max,price} como un número suelto (formato viejo, solo precio).
+  if(Array.isArray(cfg.teamTiers)){
+    cfg.teamTiers.forEach((t,i)=>{
+      const tier=REG_PRICE_TEAM_TIERS[i];
+      if(!tier)return;
+      if(typeof t==='number'){if(okNum(t))tier.price=t;return;}
+      if(!t||typeof t!=='object')return;
+      if(okNum(t.price))tier.price=t.price;
+      if(t.max===null)tier.max=null;
+      else if(okNum(t.max)&&t.max>=1)tier.max=Math.round(t.max);
+    });
+    REG_PRICE_TEAM_TIERS[REG_PRICE_TEAM_TIERS.length-1].max=null;
+    regTeamRefreshLabels();
+  }
 }
 // Trae 'reg-prices.json' y lo aplica en memoria. Se llama tanto desde el formulario público
 // (renderInscripcionPublica) como desde la solapa Pagos (loadPagosCache), para que ambos lados
@@ -11019,6 +11127,21 @@ async function loadRegPricesIntoMemory(){
 function regPriceTierRowsHTML(prefix,tiers){
   return tiers.map((t,i)=>`<div class="ctl edit-only" style="display:flex;align-items:center;gap:8px"><label for="${prefix}_${i}" style="flex:1;font-size:11.5px;color:var(--ink-soft);font-weight:400">${_escEd(t.label)}</label><input type="number" id="${prefix}_${i}" min="0" step="1000" style="width:120px;flex-shrink:0;box-sizing:border-box;padding:6px 8px;border:1px solid var(--line);border-radius:8px;font-size:12px;background:var(--bg);color:var(--ink)"></div>`).join('');
 }
+// Fila editable por escalón de equipos: tope (personas) + precio. El último escalón no tiene tope.
+function regTeamTierRowsHTML(){
+  const IN='box-sizing:border-box;padding:6px 8px;border:1px solid var(--line);border-radius:8px;font-size:12px;background:var(--bg);color:var(--ink)';
+  return REG_PRICE_TEAM_TIERS.map((t,i)=>{
+    const last=i===REG_PRICE_TEAM_TIERS.length-1;
+    const topeHTML=last
+      ? `<span style="width:120px;flex-shrink:0;font-size:11.5px;color:var(--ink-soft)">sin tope</span>`
+      : `<input type="number" id="rpc_team_max_${i}" min="1" step="1" style="width:120px;flex-shrink:0;${IN}">`;
+    return `<div class="ctl edit-only" style="display:flex;align-items:center;gap:8px">
+      <label for="rpc_team_${i}" style="flex:1;font-size:11.5px;color:var(--ink-soft);font-weight:400">Escalón ${i+1} — hasta</label>
+      ${topeHTML}
+      <input type="number" id="rpc_team_${i}" min="0" step="1000" style="width:120px;flex-shrink:0;${IN}">
+    </div>`;
+  }).join('');
+}
 function regPricesFillInputs(){
   const el=id=>document.getElementById(id);
   if(el('rpc_baseM'))el('rpc_baseM').value=REG_PRICE_BASE_M;
@@ -11031,6 +11154,10 @@ function regPricesFillInputs(){
   REG_PRICE_MD_TIERS.forEach((t,i)=>{if(el('rpc_md_'+i))el('rpc_md_'+i).value=t.price;});
   REG_PRICE_S_TIERS.forEach((t,i)=>{if(el('rpc_s_'+i))el('rpc_s_'+i).value=t.price;});
   REG_PRICE_C_TIERS.forEach((t,i)=>{if(el('rpc_c_'+i))el('rpc_c_'+i).value=t.price;});
+  REG_PRICE_TEAM_TIERS.forEach((t,i)=>{
+    if(el('rpc_team_'+i))el('rpc_team_'+i).value=t.price;
+    if(el('rpc_team_max_'+i))el('rpc_team_max_'+i).value=t.max==null?'':t.max;
+  });
 }
 async function loadRegPricesConfig(){
   const st=document.getElementById('regPricesConfigStatus');
@@ -11039,6 +11166,8 @@ async function loadRegPricesConfig(){
   mdList.innerHTML=regPriceTierRowsHTML('rpc_md',REG_PRICE_MD_TIERS);
   sList.innerHTML=regPriceTierRowsHTML('rpc_s',REG_PRICE_S_TIERS);
   cList.innerHTML=regPriceTierRowsHTML('rpc_c',REG_PRICE_C_TIERS);
+  const teamList=document.getElementById('rpc_teamList');
+  if(teamList)teamList.innerHTML=regTeamTierRowsHTML();
   if(st)st.textContent='Cargando...';
   try{
     await loadRegPricesIntoMemory();
@@ -11049,7 +11178,9 @@ async function loadRegPricesConfig(){
   }
 }
 function restoreRegPricesDefaults(){
-  applyRegPricesCfg({baseM:REG_PRICE_DEFAULTS.baseM,baseS:REG_PRICE_DEFAULTS.baseS,baseC:REG_PRICE_DEFAULTS.baseC,baseMSolo:REG_PRICE_DEFAULTS.baseMSolo,baseWest:REG_PRICE_DEFAULTS.baseWest,jjLeader:REG_PRICE_DEFAULTS.jjLeader,jjFollower:REG_PRICE_DEFAULTS.jjFollower,mdTiers:REG_PRICE_DEFAULTS.mdTiers,sTiers:REG_PRICE_DEFAULTS.sTiers,cTiers:REG_PRICE_DEFAULTS.cTiers});
+  applyRegPricesCfg({baseM:REG_PRICE_DEFAULTS.baseM,baseS:REG_PRICE_DEFAULTS.baseS,baseC:REG_PRICE_DEFAULTS.baseC,baseMSolo:REG_PRICE_DEFAULTS.baseMSolo,baseWest:REG_PRICE_DEFAULTS.baseWest,jjLeader:REG_PRICE_DEFAULTS.jjLeader,jjFollower:REG_PRICE_DEFAULTS.jjFollower,mdTiers:REG_PRICE_DEFAULTS.mdTiers,sTiers:REG_PRICE_DEFAULTS.sTiers,cTiers:REG_PRICE_DEFAULTS.cTiers,teamTiers:REG_PRICE_DEFAULTS.teamTiers.map(t=>({max:t.max,price:t.price}))});
+  const teamList=document.getElementById('rpc_teamList');
+  if(teamList)teamList.innerHTML=regTeamTierRowsHTML();
   regPricesFillInputs();
   const st=document.getElementById('regPricesConfigStatus');
   if(st)st.textContent='Valores por defecto cargados en el formulario. Tocá "Guardar" para aplicarlos.';
@@ -11060,15 +11191,31 @@ function regPricesReadCfg(){
     baseM:num('rpc_baseM'),baseS:num('rpc_baseS'),baseC:num('rpc_baseC'),baseMSolo:num('rpc_baseMSolo'),baseWest:num('rpc_baseWest'),jjLeader:num('rpc_baseJJLeader'),jjFollower:num('rpc_baseJJFollower'),
     mdTiers:REG_PRICE_MD_TIERS.map((t,i)=>num('rpc_md_'+i)),
     sTiers:REG_PRICE_S_TIERS.map((t,i)=>num('rpc_s_'+i)),
-    cTiers:REG_PRICE_C_TIERS.map((t,i)=>num('rpc_c_'+i))
+    cTiers:REG_PRICE_C_TIERS.map((t,i)=>num('rpc_c_'+i)),
+    teamTiers:REG_PRICE_TEAM_TIERS.map((t,i)=>{
+      const last=i===REG_PRICE_TEAM_TIERS.length-1;
+      return {max:last?null:num('rpc_team_max_'+i),price:num('rpc_team_'+i)};
+    })
   };
 }
 async function saveRegPricesConfig(){
   const st=document.getElementById('regPricesConfigStatus');
   const cfg=regPricesReadCfg();
-  const allOk=cfg.baseM!=null&&cfg.baseS!=null&&cfg.baseC!=null&&cfg.baseMSolo!=null&&cfg.baseWest!=null&&cfg.jjLeader!=null&&cfg.jjFollower!=null&&!cfg.mdTiers.some(p=>p==null)&&!cfg.sTiers.some(p=>p==null)&&!cfg.cTiers.some(p=>p==null);
+  const allOk=cfg.baseM!=null&&cfg.baseS!=null&&cfg.baseC!=null&&cfg.baseMSolo!=null&&cfg.baseWest!=null&&cfg.jjLeader!=null&&cfg.jjFollower!=null&&!cfg.mdTiers.some(p=>p==null)&&!cfg.sTiers.some(p=>p==null)&&!cfg.cTiers.some(p=>p==null)&&!cfg.teamTiers.some(t=>t.price==null);
   if(!allOk){
     if(st)st.textContent='⚠ No se guardó: revisá que todos los montos sean números válidos (0 o mayores).';
+    return;
+  }
+  // Los topes de equipos tienen que ser crecientes y ninguno puede quedar vacío (salvo el último).
+  let prevMax=0,topesOk=true;
+  cfg.teamTiers.forEach((t,i)=>{
+    const last=i===cfg.teamTiers.length-1;
+    if(last)return;
+    if(t.max==null||t.max<1||t.max<=prevMax)topesOk=false;
+    else prevMax=t.max;
+  });
+  if(!topesOk){
+    if(st)st.textContent='⚠ No se guardó: los topes de Equipos coreográficos tienen que ser números crecientes (ej. 2, luego 6).';
     return;
   }
   if(st)st.textContent='Guardando...';
@@ -12394,17 +12541,21 @@ async function renderInscripcionPublica(){
   const teamHTML=`
     <div style="font-family:'Fraunces',serif;font-weight:700;font-size:18px;color:var(--wine);margin-bottom:10px">Equipo coreográfico</div>
     ${regField('Escuela',`<input id="reg_t_esc" style="${REG_INP}">`)}
-    <label style="display:flex;align-items:center;gap:8px;font-size:13.5px;font-weight:600;margin:10px 0 6px"><input type="checkbox" id="reg_t_sd_chk" onchange="document.getElementById('reg_t_sd_box').style.display=this.checked?'block':'none'"> Showdance</label>
+    <label style="display:flex;align-items:center;gap:8px;font-size:13.5px;font-weight:600;margin:10px 0 6px"><input type="checkbox" id="reg_t_sd_chk" onchange="document.getElementById('reg_t_sd_box').style.display=this.checked?'block':'none';regTeamUpdatePrice()"> Showdance</label>
     <div id="reg_t_sd_box" style="display:none;margin-bottom:10px">
       ${regField('Nombre del equipo (Showdance)',`<input id="reg_t_sd_nombre" style="${REG_INP}">`)}
       ${regField('Nombre de la coreografía',`<input id="reg_t_sd_coreo" style="${REG_INP}">`)}
-      ${regField('Integrantes (separados por coma)',`<textarea id="reg_t_sd_integrantes" rows="3" style="${REG_INP}"></textarea>`)}
+      ${regField('Integrantes (separados por coma)',`<textarea id="reg_t_sd_integrantes" rows="3" style="${REG_INP}" oninput="regTeamSyncCount('sd')"></textarea>`)}
+      ${regField('Cantidad de integrantes',`<input type="number" id="reg_t_sd_cant" min="1" step="1" value="1" oninput="this.dataset.touched='1';regTeamUpdatePrice()" style="${REG_INP}">`)}
+      <div id="reg_t_sd_price" style="font-size:13px;color:var(--wine);font-weight:700;margin:-4px 0 10px"></div>
     </div>
-    <label style="display:flex;align-items:center;gap:8px;font-size:13.5px;font-weight:600;margin:10px 0 6px"><input type="checkbox" id="reg_t_fm_chk" onchange="document.getElementById('reg_t_fm_box').style.display=this.checked?'block':'none'"> Formation</label>
+    <label style="display:flex;align-items:center;gap:8px;font-size:13.5px;font-weight:600;margin:10px 0 6px"><input type="checkbox" id="reg_t_fm_chk" onchange="document.getElementById('reg_t_fm_box').style.display=this.checked?'block':'none';regTeamUpdatePrice()"> Formation</label>
     <div id="reg_t_fm_box" style="display:none;margin-bottom:10px">
       ${regField('Nombre del equipo (Formation)',`<input id="reg_t_fm_nombre" style="${REG_INP}">`)}
       ${regField('Nombre de la coreografía',`<input id="reg_t_fm_coreo" style="${REG_INP}">`)}
-      ${regField('Integrantes (separados por coma)',`<textarea id="reg_t_fm_integrantes" rows="3" style="${REG_INP}"></textarea>`)}
+      ${regField('Integrantes (separados por coma)',`<textarea id="reg_t_fm_integrantes" rows="3" style="${REG_INP}" oninput="regTeamSyncCount('fm')"></textarea>`)}
+      ${regField('Cantidad de integrantes',`<input type="number" id="reg_t_fm_cant" min="1" step="1" value="1" oninput="this.dataset.touched='1';regTeamUpdatePrice()" style="${REG_INP}">`)}
+      <div id="reg_t_fm_price" style="font-size:13px;color:var(--wine);font-weight:700;margin:-4px 0 10px"></div>
     </div>
     <button type="button" onclick="regSubmitTeam()" style="width:100%;padding:12px;background:var(--wine);color:#fff;border:none;border-radius:10px;font-size:15px;font-weight:700;cursor:pointer;margin-top:6px">Enviar inscripción de equipo</button>
   `;
@@ -12784,6 +12935,8 @@ function regFillTeam(rows){
     regSetVal('reg_t_sd_nombre',sd['Nombre del equipo coreográfico']);
     regSetVal('reg_t_sd_coreo',sd['Nombre de la coreografía']);
     regSetVal('reg_t_sd_integrantes',sd['Equipo coreográfico integrantes']);
+    const cantSd=document.getElementById('reg_t_sd_cant');
+    if(cantSd){cantSd.value=regTeamCountOf(sd);cantSd.dataset.touched='1';}
   }
   const fm=rows.find(r=>r['Tipo de equipo']==='Formation');
   if(fm){
@@ -12792,7 +12945,10 @@ function regFillTeam(rows){
     regSetVal('reg_t_fm_nombre',fm['Nombre del equipo coreográfico']);
     regSetVal('reg_t_fm_coreo',fm['Nombre de la coreografía']);
     regSetVal('reg_t_fm_integrantes',fm['Equipo coreográfico integrantes']);
+    const cantFm=document.getElementById('reg_t_fm_cant');
+    if(cantFm){cantFm.value=regTeamCountOf(fm);cantFm.dataset.touched='1';}
   }
+  regTeamUpdatePrice();
 }
 function regFillSingles(rows){
   const tags=regCollectCompTags(rows);
